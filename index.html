@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Snake Game</title>
+    <title>Cute Snake Game</title>
     <style>
         body {
             display: flex;
@@ -9,18 +9,21 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: #e0f7e9; /* Pastel green background */
         }
         #gameContainer {
             text-align: center;
         }
         canvas {
-            border: 1px solid black;
+            border: 2px solid #ffb6c1; /* Cute pink border */
+            border-radius: 10px;
+            background-color: #f0fff0; /* Light pastel background */
         }
         #score {
-            font-family: Arial, sans-serif;
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-family: 'Comic Sans MS', Arial, sans-serif; /* Playful font */
+            font-size: 28px;
+            color: #ff69b4; /* Hot pink */
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -44,16 +47,29 @@
     let gameOver = false;
     const speed = 100;
 
-    // Load high-resolution apple image
+    // Load cute images
+    const snakeHeadImage = new Image();
+    snakeHeadImage.src = 'https://img.icons8.com/color/100/000000/snake.png'; // Cute snake head
+    const snakeBodyImage = new Image();
+    snakeBodyImage.src = 'https://img.icons8.com/color/100/000000/circle.png'; // Colorful body (placeholder)
     const appleImage = new Image();
-    appleImage.src = 'apple.jpg';
-    appleImage.onload = () => {
-        drawGame();
-    };
-    appleImage.onerror = () => {
-        console.error('Failed to load apple image. Using red square as fallback.');
-        drawGame();
-    };
+    appleImage.src = 'https://img.icons8.com/color/100/000000/apple.png'; // Cute apple
+
+    // Start game when all images are loaded
+    let imagesLoaded = 0;
+    const totalImages = 3;
+    function checkImagesLoaded() {
+        imagesLoaded++;
+        if (imagesLoaded === totalImages) {
+            drawGame();
+        }
+    }
+    snakeHeadImage.onload = checkImagesLoaded;
+    snakeBodyImage.onload = checkImagesLoaded;
+    appleImage.onload = checkImagesLoaded;
+    snakeHeadImage.onerror = () => console.error('Failed to load snake head');
+    snakeBodyImage.onerror = () => console.error('Failed to load snake body');
+    appleImage.onerror = () => console.error('Failed to load apple');
 
     document.addEventListener('keydown', changeDirection);
 
@@ -67,8 +83,8 @@
 
     function drawGame() {
         if (gameOver) {
-            ctx.fillStyle = 'white';
-            ctx.font = '30px Arial';
+            ctx.fillStyle = '#ff69b4'; // Hot pink text
+            ctx.font = '30px Comic Sans MS';
             ctx.fillText('Game Over!', canvas.width / 4, canvas.height / 2 - 20);
             ctx.fillText(`Score: ${score}`, canvas.width / 4, canvas.height / 2 + 20);
             return;
@@ -87,21 +103,26 @@
             snake.pop();
         }
 
-        // Clear canvas
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas (background set via CSS)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw snake
-        ctx.fillStyle = 'green';
-        snake.forEach(segment => {
-            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+        snake.forEach((segment, index) => {
+            const img = index === 0 ? snakeHeadImage : snakeBodyImage;
+            if (img.complete && img.naturalWidth !== 0) {
+                ctx.drawImage(img, segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+            } else {
+                // Fallback to green rectangles
+                ctx.fillStyle = index === 0 ? '#98fb98' : '#afeeee'; // Pale green and turquoise
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+            }
         });
 
-        // Draw food (high-res apple image or fallback red square)
+        // Draw food (cute apple)
         if (appleImage.complete && appleImage.naturalWidth !== 0) {
             ctx.drawImage(appleImage, food.x * gridSize, food.y * gridSize, gridSize, gridSize);
         } else {
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = '#ff6347'; // Tomato red fallback
             ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
         }
 
